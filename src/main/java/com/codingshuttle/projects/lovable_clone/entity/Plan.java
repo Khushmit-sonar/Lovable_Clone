@@ -14,8 +14,6 @@ public class Plan {
 
     String name;
 
-
-
     String stripePriceId;
     Integer maxProjects;
     Integer maxTokensPerDay;
