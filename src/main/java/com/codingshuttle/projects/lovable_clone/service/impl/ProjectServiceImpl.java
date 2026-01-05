@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         project = projectRepository.save(project);
         return projectMapper.toProjectResponse(project);
+
     }
 
     @Override
@@ -48,11 +50,11 @@ public class ProjectServiceImpl implements ProjectService {
 
 //        return projectRepository.findAllAccessibleByUser(userId)
 //                .stream()
-//                .map(projectMapper::toProjectSummaryResponse)
+//                .map(project -> projectMapper.toProjectSummaryResponse(project))
 //                .collect(Collectors.toList());
 
-        var projects = projectRepository.findAllAccessibleByUser(userId);
-        return projectMapper.toListOfProjectSummaryResponse(projects);
+        List<Project> projects = projectRepository.findAllAccessibleByUser(userId);
+        return projectMapper.toListProjectSummaryResponse(projects);
     }
 
     @Override

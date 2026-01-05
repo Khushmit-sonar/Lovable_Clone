@@ -14,10 +14,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/members")
-@RequiredArgsConstructor
+
 public class ProjectMemberController {
 
     private final ProjectMemberService projectMemberService;
+
+    public ProjectMemberController(ProjectMemberService projectMemberService) {
+        this.projectMemberService = projectMemberService;
+    }
 
     @GetMapping
     public ResponseEntity<List<MemberResponse>> getProjectMembers(@PathVariable Long projectId) {
