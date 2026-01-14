@@ -5,6 +5,7 @@ import com.khushmitsonar.projects.lovable_clone.dto.project.ProjectResponse;
 import com.khushmitsonar.projects.lovable_clone.dto.project.ProjectSummaryResponse;
 import com.khushmitsonar.projects.lovable_clone.entity.Project;
 import com.khushmitsonar.projects.lovable_clone.entity.User;
+import com.khushmitsonar.projects.lovable_clone.error.ResourceNotFoundException;
 import com.khushmitsonar.projects.lovable_clone.mapper.ProjectMapper;
 import com.khushmitsonar.projects.lovable_clone.repository.ProjectRepository;
 import com.khushmitsonar.projects.lovable_clone.repository.UserRepository;
@@ -16,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -58,16 +60,35 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectResponse getUserProjectById(Long id, Long userId) {
-        return null;
+        Project project  = getAccessibleProjectById(id , userId);
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
-        return null;
+        Project project  = getAccessibleProjectById(id , userId);
+        project.setName(request.name());
+        project = projectRepository.save(project);
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public void softDelete(Long id, Long userId) {
+        Project project =  getAccessibleProjectById(id , userId);
+        if(!project.getOwner().getId().equals(userId)){
+            throw new RuntimeException("You are not allowed to delete");
 
+        }
+        project.setDeletedAt(Instant.now());
+        projectRepository.save(project);
+    }
+
+    //INTERNAL FUNCTION
+    //why we created this function because we were repeating
+    // Project project =  projectRepository.findAccessibleProjectById(id, userId).orElseThrow();
+    //to we created this function to respect dry principle (do repeat not)
+    public Project getAccessibleProjectById(Long projectId , Long userId){
+        return projectRepository.findAccessibleProjectById(projectId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("project" , projectId.toString() ));
     }
 }
